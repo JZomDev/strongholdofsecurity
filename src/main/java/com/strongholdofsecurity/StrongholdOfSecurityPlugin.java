@@ -29,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.WidgetLoaded;
+import net.runelite.api.widgets.ComponentID;
+import net.runelite.api.widgets.InterfaceID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
@@ -42,8 +44,7 @@ import java.awt.*;
 
 @Slf4j
 @PluginDescriptor(
-        name = "Stronghold of Security Helper",
-        enabledByDefault = false
+        name = "Stronghold of Security Helper"
 )
 public class StrongholdOfSecurityPlugin extends Plugin {
     private static final Color ANSWER_COLOR = new Color(0, 19, 230);
@@ -58,10 +59,10 @@ public class StrongholdOfSecurityPlugin extends Plugin {
     @Subscribe
     public void onWidgetLoaded(WidgetLoaded widgetLoaded) {
         switch (widgetLoaded.getGroupId()) {
-            case WidgetID.DIALOG_NPC_GROUP_ID:
+            case InterfaceID.DIALOG_NPC:
                 isNPCDialogueOpen = true;
                 break;
-            case WidgetID.DIALOG_OPTION_GROUP_ID:
+            case InterfaceID.DIALOG_OPTION:
                 isNPCDialogOptionOpen = true;
                 break;
         }
@@ -80,18 +81,21 @@ public class StrongholdOfSecurityPlugin extends Plugin {
     }
 
     private void onNPCDialogue() {
-        final Widget debugWidget = client.getWidget(WidgetInfo.DIALOG_NPC_TEXT);
+        final Widget debugWidget = client.getWidget(ComponentID.DIALOG_NPC_TEXT);
         if (debugWidget != null) {
 			final String npcText = debugWidget.getText();
 			if (SecurityAnswers.QUESTION_ANSWER_MAP.containsKey(npcText)) {
 				question = npcText;
+				log.debug(question);
+			} else {
+				log.debug("New question:\n" + npcText);
 			}
         }
     }
 
     private void onNPCOption() {
         if (question != null) {
-			final Widget optionsWidget = client.getWidget(WidgetInfo.DIALOG_OPTION);
+			final Widget optionsWidget = client.getWidget(InterfaceID.DIALOG_OPTION, 0);
 			if (optionsWidget != null) {
 				final Widget[] widgets = optionsWidget.getParent().getChildren();
 				if (widgets != null) {
